@@ -82,34 +82,24 @@ class Interpreter(object):
         else:
             self.error()
 
+    def term(self):
+        token = self.current_token
+        self.eat(INTEGER)
+        return token.value
+
     def expr(self):
         self.current_token = self.get_next_token()
 
-        operand = []
-        operator = []
-
-        while self.current_token.value is not None:
-            if self.current_token.type == INTEGER:
-                operand.append(self.current_token.value)
-            else:
-                operator.append(self.current_token)
-            self.current_token = self.get_next_token()
-
-        while len(operator) != 0:
-            op = operator.pop()
-            result = 0
-            if op.type == PLUS:
-                right = operand.pop()
-                left = operand.pop()
-                result = right + left
-            elif op.type == MINUS:
-                right = operand.pop()
-                left = operand.pop()
-                result = left - right
-            operand.append(result)
-
-        return operand[0]
-
+        result = self.term()
+        while self.current_token.type in (PLUS, MINUS):
+            token = self.current_token
+            if token.type == PLUS:
+                self.eat(PLUS)
+                result = result + self.term()
+            elif token.type == MINUS:
+                self.eat(MINUS)
+                result = result - self.term()
+        return result
 
 def main():
     while True:
