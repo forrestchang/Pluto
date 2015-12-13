@@ -85,34 +85,31 @@ class Interpreter(object):
     def expr(self):
         self.current_token = self.get_next_token()
 
-        left = self.current_token
-        self.eat(INTEGER)
+        operand = []
+        operator = []
 
-        op = self.current_token
-        if op.type == PLUS:
-            self.eat(PLUS)
-        elif op.type == MINUS:
-            self.eat(MINUS)
-        elif op.type == MULTIPLY:
-            self.eat(MULTIPLY)
-        else:
-            self.eat(DIVIDE)
-
-        right = self.current_token
-        self.eat(INTEGER)
-
-        if op.type == PLUS:
-            result = left.value + right.value
-        elif op.type == MINUS:
-            result = left.value - right.value
-        elif op.type == MULTIPLY:
-            result = left.value * right.value
-        else:
-            if right.value == 0:
-                raise Exception('Math error')
+        while self.current_token.value is not None:
+            if self.current_token.type == INTEGER:
+                operand.append(self.current_token.value)
             else:
-                result = left.value / right.value
-        return result
+                operator.append(self.current_token)
+            self.current_token = self.get_next_token()
+
+        while len(operator) != 0:
+            op = operator.pop()
+            result = 0
+            if op.type == PLUS:
+                right = operand.pop()
+                left = operand.pop()
+                result = right + left
+            elif op.type == MINUS:
+                right = operand.pop()
+                left = operand.pop()
+                result = left - right
+            operand.append(result)
+
+        return operand[0]
+
 
 def main():
     while True:
