@@ -1,9 +1,11 @@
+__author__ = 'forrest'
+
 INTEGER = 'INTEGER'
+EOF = 'EOF'
 PLUS = 'PLUS'
 MINUS = 'MINUS'
 MULTIPLY = 'MULTIPLY'
 DIVIDE = 'DIVIDE'
-EOF = 'EOF'
 
 class Token(object):
     def __init__(self, type, value):
@@ -20,21 +22,22 @@ class Interpreter(object):
     def __init__(self, text):
         self.text = text
         self.pos = 0
-        self.current_token = None
         self.current_char = self.text[self.pos]
+        self.current_token = None
 
     def error(self):
         raise Exception('Error parsing input')
 
     def advance(self):
         self.pos += 1
-        if self.pos > len(self.text) -1:
+
+        if self.pos > len(self.text) - 1:
             self.current_char = None
         else:
             self.current_char = self.text[self.pos]
 
     def skip_whitespace(self):
-        if self.current_char is not None and self.current_char.isspace():
+        while self.current_char is not None and self.current_char.isspace():
             self.advance()
 
     def integer(self):
@@ -46,7 +49,6 @@ class Interpreter(object):
 
     def get_next_token(self):
         while self.current_char is not None:
-
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
@@ -71,6 +73,7 @@ class Interpreter(object):
                 return Token(DIVIDE, '/')
 
             self.error()
+
         return Token(EOF, None)
 
     def eat(self, type):
@@ -109,7 +112,6 @@ class Interpreter(object):
                 raise Exception('Math error')
             else:
                 result = left.value / right.value
-
         return result
 
 def main():
@@ -120,11 +122,9 @@ def main():
             break
         if not text:
             continue
-
         interpreter = Interpreter(text)
         result = interpreter.expr()
         print(result)
 
 if __name__ == '__main__':
     main()
-
