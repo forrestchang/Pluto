@@ -14,11 +14,6 @@ class Token(object):
 
     def __str__(self):
         """String representation of the class instance.
-
-        Examples:
-            Token(INTEGER, 3)
-            Token(PLUS, '+')
-            Token(MUL, '*')
         """
         return 'Token({type}, {value})'.format(
             type=self.type,
