@@ -13,8 +13,6 @@ class Token(object):
         self.value = value
 
     def __str__(self):
-        """String representation of the class instance.
-        """
         return 'Token({type}, {value})'.format(
             type=self.type,
             value=repr(self.value)
@@ -26,9 +24,7 @@ class Token(object):
 
 class Lexer(object):
     def __init__(self, text):
-        # client string input, e.g. "4 + 2 * 3 - 6 / 2"
         self.text = text
-        # self.pos is an index into self.text
         self.pos = 0
         self.current_char = self.text[self.pos]
 
@@ -36,10 +32,9 @@ class Lexer(object):
         raise Exception('Invalid character')
 
     def advance(self):
-        """Advance the `pos` pointer and set the `current_char` variable."""
         self.pos += 1
         if self.pos > len(self.text) - 1:
-            self.current_char = None  # Indicates end of input
+            self.current_char = None
         else:
             self.current_char = self.text[self.pos]
 
@@ -48,19 +43,13 @@ class Lexer(object):
             self.advance()
 
     def integer(self):
-        """Return a (multidigit) integer consumed from the input."""
         result = ''
-        while self.current_char is not None and self.current_char.isdigit():
+        while self.current_char is not None and (self.current_char.isdigit() or self.current_char == '.'):
             result += self.current_char
             self.advance()
-        return int(result)
+        return float(result)
 
     def get_next_token(self):
-        """Lexical analyzer (also known as scanner or tokenizer)
-
-        This method is responsible for breaking a sentence
-        apart into tokens. One token at a time.
-        """
         while self.current_char is not None:
 
             if self.current_char.isspace():
@@ -102,24 +91,18 @@ class Lexer(object):
 class Interpreter(object):
     def __init__(self, lexer):
         self.lexer = lexer
-        # set current token to the first token taken from the input
         self.current_token = self.lexer.get_next_token()
 
     def error(self):
         raise Exception('Invalid syntax')
 
     def eat(self, token_type):
-        # compare the current token type with the passed token
-        # type and if they match then "eat" the current token
-        # and assign the next token to the self.current_token,
-        # otherwise raise an exception.
         if self.current_token.type == token_type:
             self.current_token = self.lexer.get_next_token()
         else:
             self.error()
 
     def factor(self):
-        """factor : INTEGER | LPAREN expr RPAREN"""
         token = self.current_token
         if token.type == INTEGER:
             self.eat(INTEGER)
@@ -131,7 +114,6 @@ class Interpreter(object):
             return result
 
     def term(self):
-        """term : factor ((MUL | DIV) factor)*"""
         result = self.factor()
 
         while self.current_token.type in (MUL, DIV):
@@ -146,15 +128,6 @@ class Interpreter(object):
         return result
 
     def expr(self):
-        """Arithmetic expression parser / interpreter.
-
-        calc> 7 + 3 * (10 / (12 / (3 + 1) - 1))
-        22
-
-        expr   : term ((PLUS | MINUS) term)*
-        term   : factor ((MUL | DIV) factor)*
-        factor : INTEGER | LPAREN expr RPAREN
-        """
         result = self.term()
 
         while self.current_token.type in (PLUS, MINUS):
