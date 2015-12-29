@@ -143,9 +143,11 @@ class Interpreter(object):
 
 
 def main():
+    print('Pluto 0.0.1')
+    print('Type expression e.g: 1 + 2 * 3')
     while True:
         try:
-            text = input('calc> ')
+            text = input('>> ')
         except EOFError:
             break
         if not text:
