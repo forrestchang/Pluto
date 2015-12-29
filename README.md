@@ -1,1 +1,1 @@
-Pascal interpreter in Python.
+Scheme interpreter in Python.
