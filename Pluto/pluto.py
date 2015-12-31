@@ -1,11 +1,5 @@
-# Token types
-#
-# EOF (end-of-file) token is used to indicate that
-# there is no more input left for lexical analysis
-INTEGER, PLUS, MINUS, MUL, DIV, LPAREN, RPAREN, EOF = (
-    'INTEGER', 'PLUS', 'MINUS', 'MUL', 'DIV', '(', ')', 'EOF'
-)
-
+OPERAND, PLUS, MINUS, MUL, DIV, LPARENT, RPARENT, EOF = ('OPERAND', 'PLUS', 'MINUS', 'MUL',
+                                                         'DIV', 'LPARENT', 'RPARENT', 'EOF')
 
 class Token(object):
     def __init__(self, type, value):
@@ -13,14 +7,10 @@ class Token(object):
         self.value = value
 
     def __str__(self):
-        return 'Token({type}, {value})'.format(
-            type=self.type,
-            value=repr(self.value)
-        )
+        return 'Token({type}, {value})'.format(type=self.type, value=self.value)
 
     def __repr__(self):
         return self.__str__()
-
 
 class Lexer(object):
     def __init__(self, text):
@@ -29,7 +19,7 @@ class Lexer(object):
         self.current_char = self.text[self.pos]
 
     def error(self):
-        raise Exception('Invalid character')
+        raise Exception('Invilid syntax')
 
     def advance(self):
         self.pos += 1
@@ -42,7 +32,7 @@ class Lexer(object):
         while self.current_char is not None and self.current_char.isspace():
             self.advance()
 
-    def integer(self):
+    def operand(self):
         result = ''
         while self.current_char is not None and (self.current_char.isdigit() or self.current_char == '.'):
             result += self.current_char
@@ -51,13 +41,12 @@ class Lexer(object):
 
     def get_next_token(self):
         while self.current_char is not None:
-
             if self.current_char.isspace():
                 self.skip_whitespace()
                 continue
 
-            if self.current_char.isdigit():
-                return Token(INTEGER, self.integer())
+            if self.current_char.isdigit() or self.current_char == '.':
+                return Token(OPERAND, self.operand())
 
             if self.current_char == '+':
                 self.advance()
@@ -77,16 +66,14 @@ class Lexer(object):
 
             if self.current_char == '(':
                 self.advance()
-                return Token(LPAREN, '(')
+                return Token(LPARENT, '(')
 
             if self.current_char == ')':
                 self.advance()
-                return Token(RPAREN, ')')
+                return Token(RPARENT, ')')
 
             self.error()
-
         return Token(EOF, None)
-
 
 class Interpreter(object):
     def __init__(self, lexer):
@@ -94,7 +81,7 @@ class Interpreter(object):
         self.current_token = self.lexer.get_next_token()
 
     def error(self):
-        raise Exception('Invalid syntax')
+        raise Exception('Invilid syntax')
 
     def eat(self, token_type):
         if self.current_token.type == token_type:
@@ -104,13 +91,14 @@ class Interpreter(object):
 
     def factor(self):
         token = self.current_token
-        if token.type == INTEGER:
-            self.eat(INTEGER)
+
+        if token.type == OPERAND:
+            self.eat(OPERAND)
             return token.value
-        elif token.type == LPAREN:
-            self.eat(LPAREN)
+        elif token.type == LPARENT:
+            self.eat(LPARENT)
             result = self.expr()
-            self.eat(RPAREN)
+            self.eat(RPARENT)
             return result
 
     def term(self):
@@ -123,8 +111,9 @@ class Interpreter(object):
                 result = result * self.factor()
             elif token.type == DIV:
                 self.eat(DIV)
+                if self.current_token.value == 0:
+                    raise Exception('Math error, dividend can not be 0')
                 result = result / self.factor()
-
         return result
 
     def expr(self):
@@ -138,16 +127,13 @@ class Interpreter(object):
             elif token.type == MINUS:
                 self.eat(MINUS)
                 result = result - self.term()
-
         return result
 
-
 def main():
-    print('Pluto 0.0.1')
-    print('Type expression e.g: 1 + 2 * 3')
+    print('Pluto version 0.0.4')
     while True:
         try:
-            text = input('>> ')
+            text = input('>>> ')
         except EOFError:
             break
         if not text:
@@ -156,7 +142,6 @@ def main():
         interpreter = Interpreter(lexer)
         result = interpreter.expr()
         print(result)
-
 
 if __name__ == '__main__':
     main()
