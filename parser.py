@@ -56,12 +56,12 @@ class Parser(object):
     def expr(self):
         node = self.term()
 
-        while self.current_token.type in (ADD, SUB):
+        while self.current_token.type in (PLUS, MINUS):
             token = self.current_token
-            if token.type == ADD:
-                self.eat(ADD)
-            elif token.type == SUB:
-                self.eat(SUB)
+            if token.type == PLUS:
+                self.eat(PLUS)
+            elif token.type == MINUS:
+                self.eat(MINUS)
 
             node = BinOp(left=node, op=token, right=self.term())
         return node

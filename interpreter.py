@@ -14,9 +14,9 @@ class Interpreter(NodeVistor):
         self.parser = parser
 
     def visit_BinOp(self, node):
-        if node.op.type == ADD:
+        if node.op.type == PLUS:
             return self.visit(node.left) + self.visit(node.right)
-        elif node.op.type == SUB:
+        elif node.op.type == MINUS:
             return self.visit(node.left) - self.visit(node.right)
         elif node.op.type == MUL:
             return self.visit(node.left) * self.visit(node.right)

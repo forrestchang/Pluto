@@ -1,6 +1,29 @@
 # Token types
-OPERAND, ADD, SUB, MUL, DIV, LPAREN, RPAREN, EOF = ('OPERAND', 'ADD', 'SUB', 'MUL', 'DIV', 'LPAREN', 'RPAREN',
-                                                    'EOF')
+OPERAND = 'OPERAND'             # [0-9]
+ID = 'ID'                       # [a-z][A-Z][0-9]_
+PLUS = 'PLUS'                   # +
+MINUS = 'MINUS'                 # -
+MUL = 'MUL'                     # *
+DIV = 'DIV'                     # /
+LPAREN = 'LPAREN'               # (
+RPAREN = 'RPAREN'               # )
+LESSTHAN = 'LESSTHAN'           # <
+GREATERTHAN = 'GREATERTHAN'     # >
+LTE = 'LTE'                     # <=
+GTE = 'GTE'                     # >=
+EQUAL = 'EQUAL'                 # =
+NOTEQUAL = 'NOTEQUAL'           # !=
+ASSIGNMENT = 'ASSIGNMENT'       # :=
+AND = 'AND'                     # and
+OR = 'OR'                       # or
+NOT = 'NOT'                     # not
+IF = 'IF'                       # if
+THEN = 'THEN'                   # then
+ELSE = 'ELSE'                   # else
+WHILE = 'WHILE'                 # while
+DO = 'DO'                       # do
+END = 'END'                     # end
+EOF = 'EOF'                     # EOF
 
 class Token(object):
     def __init__(self, type, value):
@@ -40,6 +63,33 @@ class Lexer(object):
             self.advance()
         return float(result)
 
+    def keywords(self):
+        result = ''
+        while self.current_char is not None and self.current_char.isalnum():
+            result += self.current_char
+            self.advance()
+
+        if result == 'and':
+            return Token(AND, 'and')
+        elif result == 'or':
+            return Token(OR, 'or')
+        elif result == 'not':
+            return Token(NOT, 'not')
+        elif result == 'if':
+            return Token(IF, 'if')
+        elif result == 'then':
+            return Token(THEN, 'then')
+        elif result == 'else':
+            return Token(ELSE, 'else')
+        elif result == 'while':
+            return Token(WHILE, 'while')
+        elif result == 'do':
+            return Token(DO, 'do')
+        elif result == 'end':
+            return Token(END, 'end')
+        else:
+            return Token(ID, result)
+
     def get_next_token(self):
         while self.current_char is not None:
             if self.current_char.isspace():
@@ -51,11 +101,11 @@ class Lexer(object):
 
             if self.current_char == '+':
                 self.advance()
-                return Token(ADD, '+')
+                return Token(PLUS, '+')
 
             if self.current_char == '-':
                 self.advance()
-                return Token(SUB, '-')
+                return Token(MINUS, '-')
 
             if self.current_char == '*':
                 self.advance()
@@ -72,6 +122,39 @@ class Lexer(object):
             if self.current_char == ')':
                 self.advance()
                 return Token(RPAREN, ')')
+
+            if self.current_char == '<':
+                if self.text[self.pos + 1] == '=':
+                    self.advance()
+                    self.advance()
+                    return Token(LTE, '<=')
+                else:
+                    self.advance()
+                    return Token(LESSTHAN, '<')
+
+            if self.current_char == '>':
+                if self.text[self.pos + 1] == '=':
+                    self.advance()
+                    self.advance()
+                    return Token(GTE, '>=')
+                else:
+                    self.advance()
+                    return Token(GREATERTHAN, '>')
+
+            if self.current_char == '=':
+                self.advance()
+                return Token(EQUAL, '=')
+
+            if self.current_char == ':':
+                if self.text[self.pos + 1] == '=':
+                    self.advance()
+                    self.advance()
+                    return Token(ASSIGNMENT, ':=')
+                else:
+                    self.error()
+
+            if self.current_char.isalnum():
+                return self.keywords()
 
             self.error()
         return Token(EOF, None)
