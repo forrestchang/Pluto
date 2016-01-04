@@ -146,6 +146,11 @@ class Lexer(object):
                 self.advance()
                 return Token(EQUAL, '=')
 
+            if self.current_char == '!':
+                self.advance()
+                self.advance()
+                return Token(NOTEQUAL, '!=')
+
             if self.current_char == ':':
                 if self.text[self.pos + 1] == '=':
                     self.advance()
