@@ -23,6 +23,7 @@ ELSE = 'ELSE'                   # else
 WHILE = 'WHILE'                 # while
 DO = 'DO'                       # do
 END = 'END'                     # end
+SEMICOLON = 'SEMICOLON'         # ;
 EOF = 'EOF'                     # EOF
 
 class Token(object):
@@ -152,6 +153,10 @@ class Lexer(object):
                     return Token(ASSIGNMENT, ':=')
                 else:
                     self.error()
+
+            if self.current_char == ';':
+                self.advance()
+                return Token(SEMICOLON, ';')
 
             if self.current_char.isalnum():
                 return self.keywords()
