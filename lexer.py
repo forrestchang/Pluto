@@ -66,7 +66,7 @@ class Lexer(object):
 
     def keywords(self):
         result = ''
-        while self.current_char is not None and self.current_char.isalnum():
+        while self.current_char is not None and (self.current_char.isalnum() or self.current_char == '_'):
             result += self.current_char
             self.advance()
 
@@ -163,7 +163,7 @@ class Lexer(object):
                 self.advance()
                 return Token(SEMICOLON, ';')
 
-            if self.current_char.isalnum():
+            if self.current_char.isalnum() or self.current_char == '_':
                 return self.keywords()
 
             self.error()
